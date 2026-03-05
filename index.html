@@ -24,7 +24,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         .glass-panel {
             background: rgba(255, 255, 255, 0.8);
@@ -37,12 +36,6 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid #e2e8f0;
             min-height: 320px;
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
-            border-color: var(--accent);
         }
 
         .rank-badge {
@@ -60,24 +53,48 @@
             z-index: 10;
         }
 
-        thead th {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: #f1f5f9;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-        }
-
-        .scroll-btn {
-            @apply flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-lg text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all active:scale-95;
-        }
-
+        /* --- PRINT OPTIMIZATION --- */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+            
             .no-print { display: none !important; }
-            body { background: white !important; }
-            #table-section { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            
+            body { 
+                background: white !important; 
+                margin: 0; 
+                padding: 0;
+                font-size: 10pt;
+            }
+
+            main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
+            
+            #table-section { 
+                display: block !important; 
+                box-shadow: none !important; 
+                border: none !important;
+                overflow: visible !important;
+                width: 100% !important;
+            }
+
+            #table-container {
+                max-height: none !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            table {
+                width: 100% !important;
+                table-layout: auto !important;
+                border: 1px solid #e2e8f0;
+                border-collapse: collapse;
+            }
+
+            thead { display: table-header-group; }
+            tr { page-break-inside: avoid; }
+            
             .print-only { display: block !important; }
         }
         .print-only { display: none; }
@@ -88,30 +105,26 @@
     <nav class="glass-panel sticky top-0 z-50 border-b border-slate-200 no-print">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-extrabold tracking-tight text-slate-900 leading-none">STOCK ANALYTICS</h1>
+                    <h1 class="text-lg font-extrabold text-slate-900 leading-none">STOCK ANALYTICS</h1>
                     <p class="text-[10px] font-semibold text-emerald-600 uppercase tracking-widest mt-1">PPTS Management System</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <label for="excel-upload" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                    </svg>
-                    Import Data
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    Import Excel
                 </label>
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls, .csv">
                 
-                <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-200 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Export PDF
+                <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                    Cetak PDF (A4)
                 </button>
             </div>
         </div>
@@ -119,145 +132,98 @@
 
     <main class="container mx-auto px-6 py-8">
         
-        <!-- Summary Dashboard -->
-        <section id="summary-cards" class="hidden no-print mb-16 space-y-12">
-            <!-- Top 10 Section -->
+        <!-- Summary Dashboard (Top & Bottom) - Ditambahkan class no-print -->
+        <section id="summary-cards" class="hidden mb-16 space-y-12 no-print">
             <div>
-                <div class="flex items-end justify-between mb-8 border-l-4 border-emerald-500 pl-4">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-emerald-100 rounded-2xl">
-                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z"/></svg>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Stock PPTS Tertinggi</h2>
-                            <p class="text-sm text-slate-500 font-medium italic">10 Kios dengan volume stok terbesar saat ini</p>
-                        </div>
+                <div class="flex items-center justify-between mb-8 border-l-4 border-emerald-500 pl-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Top 10 Volume Terbesar</h2>
+                        <p class="text-sm text-slate-500">Kios dengan akumulasi stok tertinggi (Aktif)</p>
                     </div>
                 </div>
-                <div id="top-20-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <!-- Cards injected here -->
-                </div>
+                <div id="top-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"></div>
             </div>
 
-            <!-- Bottom 5 Section -->
-            <div>
-                <div class="flex items-end justify-between mb-8 border-l-4 border-rose-500 pl-4">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-rose-100 rounded-2xl">
-                            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-800 tracking-tight text-rose-600">Stok Kritis</h2>
-                            <p class="text-sm text-slate-500 font-medium italic">5 Kios dengan persediaan paling rendah</p>
-                        </div>
+            <div class="page-break-before">
+                <div class="flex items-center justify-between mb-8 border-l-4 border-rose-500 pl-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-rose-600">5 Stok Terendah</h2>
+                        <p class="text-sm text-slate-500">Kios dengan persediaan paling kritis (Aktif)</p>
                     </div>
                 </div>
-                <div id="bottom-20-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <!-- Cards injected here -->
-                </div>
+                <div id="bottom-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"></div>
             </div>
         </section>
 
-        <!-- Filter & Table Control -->
-        <div class="hidden no-print mb-8 space-y-6" id="dashboard-controls">
+        <!-- Filter Controls -->
+        <div class="hidden no-print mb-8" id="dashboard-controls">
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Nama / Kode Kios</label>
-                        <div class="relative">
-                            <input type="text" id="filter-nama" placeholder="Ketik pencarian..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-medium">
-                            <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg>
-                        </div>
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Cari Kios</label>
+                        <input type="text" id="filter-nama" placeholder="Nama atau Kode..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Kecamatan</label>
-                        <input type="text" id="filter-kecamatan" placeholder="Cari wilayah..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-medium">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Status Kios</label>
-                        <select id="filter-status" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-semibold text-slate-600">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Status</label>
+                        <select id="filter-status" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none">
                             <option value="">Semua Status</option>
                             <option value="Aktif">Aktif</option>
                             <option value="Tidak Aktif">Tidak Aktif</option>
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Filter Persediaan</label>
-                        <select id="filter-stok" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-semibold text-slate-600">
-                            <option value="all">Tampilkan Semua</option>
-                            <option value="has-stock">Hanya Stok Tersedia (>0)</option>
-                            <option value="no-stock">Hanya Stok Kosong</option>
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Urutan Tampilan</label>
+                        <select id="filter-sort" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none">
+                            <option value="desc">Stok Terbesar ke Terkecil</option>
+                            <option value="asc">Stok Terkecil ke Terbesar</option>
+                            <option value="original">Sesuai Urutan Excel</option>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Data Table Container -->
-        <section id="table-section" class="hidden bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden relative group/table">
-            
-            <!-- Floating Scroll Navigation -->
-            <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30 no-print opacity-0 group-hover/table:opacity-100 transition-opacity duration-300">
-                <button onclick="scrollTable('up')" class="scroll-btn" title="Gulir ke Atas">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
-                </button>
-                <button onclick="scrollTable('down')" class="scroll-btn" title="Gulir ke Bawah">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-            </div>
-
-            <div class="print-only p-8 text-center border-b border-slate-100">
+        <!-- Main Data Table -->
+        <section id="table-section" class="hidden bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden relative">
+            <div class="print-only p-8 text-center border-b">
                 <h1 class="text-2xl font-black text-slate-900 uppercase">Laporan Monitoring Stok PPTS</h1>
-                <p id="print-info" class="text-xs text-slate-500 mt-2 font-medium tracking-wide"></p>
+                <p id="print-info" class="text-xs text-slate-500 mt-2 font-medium"></p>
             </div>
             
-            <div id="table-container" class="scroll-container custom-scrollbar overflow-x-auto max-h-[600px] overflow-y-auto">
-                <table class="w-full text-left border-collapse min-w-[1000px]">
+            <div id="table-container" class="custom-scrollbar overflow-x-auto max-h-[600px] overflow-y-auto">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50/80 text-slate-500 border-b border-slate-100">
-                            <th class="px-4 py-4 w-28 text-[10px]">ID Kios</th>
-                            <th class="px-4 py-4 text-[10px]">Nama Entitas</th>
-                            <th class="px-4 py-4 text-center w-24 text-[10px]">Status</th>
-                            <th class="px-4 py-4 text-[10px]">Wilayah</th>
-                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">Urea</th>
-                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">NPK</th>
-                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">For</th>
-                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">Org</th>
-                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">ZA</th>
-                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">SP</th>
-                            <th class="px-6 py-4 text-right bg-slate-900 text-slate-300 w-28 text-[10px]">Grand Total</th>
+                        <tr class="bg-slate-50 text-slate-500 border-b">
+                            <th class="px-4 py-4 text-[10px] font-bold uppercase">ID Kios</th>
+                            <th class="px-4 py-4 text-[10px] font-bold uppercase">Nama Kios</th>
+                            <th class="px-4 py-4 text-center text-[10px] font-bold uppercase">Status</th>
+                            <th class="px-4 py-4 text-[10px] font-bold uppercase">Kecamatan</th>
+                            <th class="px-3 py-4 text-center text-[10px] font-bold uppercase bg-emerald-50/30">Urea</th>
+                            <th class="px-3 py-4 text-center text-[10px] font-bold uppercase bg-emerald-50/30">NPK</th>
+                            <th class="px-3 py-4 text-center text-[10px] font-bold uppercase bg-emerald-50/30">For</th>
+                            <th class="px-3 py-4 text-center text-[10px] font-bold uppercase bg-emerald-50/30">Org</th>
+                            <th class="px-3 py-4 text-center text-[10px] font-bold uppercase bg-emerald-50/30">ZA</th>
+                            <th class="px-3 py-4 text-center text-[10px] font-bold uppercase bg-emerald-50/30">SP</th>
+                            <th class="px-6 py-4 text-right bg-slate-900 text-slate-300 text-[10px] font-bold uppercase">Total Stok</th>
                         </tr>
                     </thead>
-                    <tbody id="table-body" class="text-xs font-medium text-slate-600 divide-y divide-slate-100">
-                        <!-- Dynamic Data -->
-                    </tbody>
+                    <tbody id="table-body" class="text-xs font-medium text-slate-600 divide-y divide-slate-100"></tbody>
                 </table>
             </div>
             
-            <div id="footer-summary" class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 no-print">
-                <div class="flex items-center gap-3">
-                    <span id="count-info" class="bg-white px-4 py-1.5 rounded-full border border-slate-200 text-[11px] font-bold text-slate-700 shadow-sm">
-                        Menampilkan 0 Entitas
-                    </span>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-right">
-                        <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Akumulasi Total Stok</p>
-                        <p id="total-info" class="text-xl font-black text-slate-900">0 <span class="text-xs font-bold text-slate-400">Kg</span></p>
-                    </div>
+            <div class="px-8 py-5 bg-slate-50 border-t flex justify-between items-center">
+                <span id="count-info" class="text-[11px] font-bold text-slate-500"></span>
+                <div class="text-right">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Akumulasi Seluruh Kios</p>
+                    <p id="total-info" class="text-xl font-black text-slate-900">0 Kg</p>
                 </div>
             </div>
         </section>
 
         <!-- Empty State -->
-        <div id="empty-state" class="flex flex-col items-center justify-center py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 transition-all hover:border-emerald-300 group">
-            <div class="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-50 transition-all duration-500">
-                <svg class="w-10 h-10 text-slate-300 group-hover:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
-            <h3 class="text-xl font-extrabold text-slate-800">Sistem Siap Memproses Data</h3>
-            <p class="text-slate-400 text-sm mt-2 max-w-xs text-center leading-relaxed font-medium">Unggah file Excel stok PPTS Anda untuk mendapatkan visualisasi dashboard profesional.</p>
+        <div id="empty-state" class="flex flex-col items-center justify-center py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 no-print">
+            <h3 class="text-xl font-extrabold text-slate-800">Silakan Unggah Data Excel</h3>
+            <p class="text-slate-400 text-sm mt-2 text-center max-w-xs">Data akan ditampilkan secara otomatis dari stok terbesar ke terkecil.</p>
         </div>
     </main>
 
@@ -269,25 +235,14 @@
         const tableBody = document.getElementById('table-body');
         const emptyState = document.getElementById('empty-state');
         const tableSection = document.getElementById('table-section');
-        const tableContainer = document.getElementById('table-container');
         const dashboardControls = document.getElementById('dashboard-controls');
         const summaryCards = document.getElementById('summary-cards');
-        const top20Container = document.getElementById('top-20-container');
-        const bottom20Container = document.getElementById('bottom-20-container');
+        const topContainer = document.getElementById('top-container');
+        const bottomContainer = document.getElementById('bottom-container');
         
         const inputNama = document.getElementById('filter-nama');
         const inputStatus = document.getElementById('filter-status');
-        const inputKecamatan = document.getElementById('filter-kecamatan');
-        const inputStok = document.getElementById('filter-stok');
-
-        function scrollTable(direction) {
-            const amount = 300;
-            if (direction === 'up') {
-                tableContainer.scrollBy({ top: -amount, behavior: 'smooth' });
-            } else {
-                tableContainer.scrollBy({ top: amount, behavior: 'smooth' });
-            }
-        }
+        const inputSort = document.getElementById('filter-sort');
 
         excelInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -300,6 +255,7 @@
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                 
+                // Simpan data mentah
                 MASTER_DATA = parseExcelData(jsonData);
                 showDashboard();
             };
@@ -322,7 +278,7 @@
                 const total = urea + npk + npkFormula + organik + za + sp36;
 
                 return {
-                    no: row['No'] || idx + 1,
+                    originalIdx: idx,
                     kode: row['Kode Kios'] || '-',
                     nama: row['Nama Kios'] || 'N/A',
                     status: row['Status Kios (PSO)'] || row['Status Kios'] || 'N/A',
@@ -341,136 +297,102 @@
             renderTable();
         }
 
-        function createCard(item, colorClass, rank, isTop) {
-            const badgeColor = isTop ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white';
-            const iconColor = isTop ? 'text-emerald-500' : 'text-rose-500';
-            const iconPath = isTop 
-                ? "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" 
-                : "M13 17h8m0 0V9m0 8l-8-8-4 4-6-6";
-
-            const details = [
-                { l: 'UREA', v: item.urea },
-                { l: 'NPK', v: item.npk },
-                { l: 'FORM', v: item.npkFormula },
-                { l: 'ORG', v: item.organik },
-                { l: 'ZA', v: item.za },
-                { l: 'SP', v: item.sp36 }
-            ];
-
+        function createCard(item, rank, isTop) {
+            const badgeColor = isTop ? 'bg-emerald-600' : 'bg-rose-600';
             return `
-                <div class="summary-card bg-white p-6 rounded-[2rem] relative overflow-hidden flex flex-col h-full group border-2">
-                    <!-- Badge Rank yang lebih besar dan jelas -->
-                    <div class="rank-badge shadow-xl ${badgeColor}">${rank}</div>
-                    
-                    <div class="mb-5">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
-                                <svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg>
-                            </div>
-                            <div class="overflow-hidden">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate">#${item.kode}</p>
-                            </div>
+                <div class="summary-card bg-white p-6 rounded-[2rem] relative flex flex-col h-full border-2">
+                    <div class="rank-badge ${badgeColor} text-white">${rank}</div>
+                    <div class="mb-4 pr-10">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">#${item.kode}</p>
+                        <h4 class="text-sm font-black text-slate-800 uppercase line-clamp-2 mt-1">${item.nama}</h4>
+                    </div>
+                    <div class="text-[10px] font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg mb-4 truncate italic">
+                        ${item.kecamatan}
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5 mb-4">
+                        <div class="bg-slate-50 p-1.5 rounded-lg text-center">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">Urea</p>
+                            <p class="text-[10px] font-black">${formatNum(item.urea)}</p>
                         </div>
-                        <h4 class="text-sm font-black text-slate-800 uppercase leading-tight pr-8 min-h-[2.5rem] flex items-center line-clamp-2">
-                            ${item.nama}
-                        </h4>
-                    </div>
-
-                    <div class="flex items-center gap-2 mb-6 bg-slate-50 px-3 py-2 rounded-xl">
-                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2.5"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2.5"/></svg>
-                        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-tight truncate">${item.kecamatan}</span>
-                    </div>
-
-                    <!-- Grid stok dengan font yang lebih tebal dan label yang jelas -->
-                    <div class="grid grid-cols-3 gap-2 mb-6">
-                        ${details.map(d => `
-                            <div class="bg-white p-2 rounded-xl border border-slate-100 flex flex-col items-center hover:bg-slate-50 transition-colors">
-                                <span class="text-[8px] font-black text-slate-400 leading-none mb-1.5">${d.l}</span>
-                                <span class="text-[11px] font-extrabold text-slate-800">${formatNum(d.v)}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-
-                    <!-- Footer total stok dengan kontras tinggi -->
-                    <div class="mt-auto flex justify-between items-center bg-slate-900 -mx-6 -mb-6 p-4 px-6">
-                        <span class="text-[9px] font-black text-slate-400 tracking-widest uppercase">TOTAL STOK</span>
-                        <div class="text-right">
-                            <span class="text-base font-black text-white leading-none">${formatNum(item.total)}</span>
-                            <span class="text-[10px] font-bold text-emerald-400 ml-0.5">Kg</span>
+                        <div class="bg-slate-50 p-1.5 rounded-lg text-center">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">NPK</p>
+                            <p class="text-[10px] font-black">${formatNum(item.npk)}</p>
                         </div>
+                        <div class="bg-slate-50 p-1.5 rounded-lg text-center">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">Total</p>
+                            <p class="text-[10px] font-black text-emerald-600">${formatNum(item.total)}</p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t flex justify-between items-center">
+                         <span class="text-[8px] font-black text-slate-400">GRAND TOTAL</span>
+                         <span class="text-sm font-black text-slate-900">${formatNum(item.total)} Kg</span>
                     </div>
                 </div>
             `;
         }
 
         function renderSummaryCards() {
-            const activeKios = MASTER_DATA.filter(item => item.status === 'Aktif');
-            const sortedData = [...activeKios].sort((a, b) => b.total - a.total);
+            const activeOnly = MASTER_DATA.filter(item => item.status === 'Aktif');
+            const sorted = [...activeOnly].sort((a, b) => b.total - a.total);
             
-            // Top 10 Cards
-            top20Container.innerHTML = sortedData.slice(0, 10).map((item, index) => createCard(item, 'text-emerald-600', index + 1, true)).join('');
-            
-            // Bottom 5 Cards
-            bottom20Container.innerHTML = [...sortedData].reverse().slice(0, 5).map((item, index) => createCard(item, 'text-rose-600', index + 1, false)).join('');
+            topContainer.innerHTML = sorted.slice(0, 10).map((item, i) => createCard(item, i + 1, true)).join('');
+            bottomContainer.innerHTML = [...sorted].reverse().slice(0, 5).map((item, i) => createCard(item, i + 1, false)).join('');
         }
 
         function renderTable() {
             const searchTerm = inputNama.value.toLowerCase();
             const statusFilter = inputStatus.value;
-            const kecamatanTerm = inputKecamatan.value.toLowerCase();
-            const stokFilter = inputStok.value;
+            const sortMode = inputSort.value;
 
             let filtered = MASTER_DATA.filter(item => {
                 const matchNama = item.nama.toLowerCase().includes(searchTerm) || item.kode.toLowerCase().includes(searchTerm);
                 const matchStatus = statusFilter === "" || item.status === statusFilter;
-                const matchKecamatan = item.kecamatan.toLowerCase().includes(kecamatanTerm);
-                const matchStok = stokFilter === 'all' ? true : (stokFilter === 'has-stock' ? item.total > 0 : item.total === 0);
-                return matchNama && matchStatus && matchKecamatan && matchStok;
+                return matchNama && matchStatus;
             });
 
-            filtered.sort((a, b) => b.total - a.total);
+            // Logika Pengurutan
+            if (sortMode === 'asc') {
+                filtered.sort((a, b) => a.total - b.total);
+            } else if (sortMode === 'original') {
+                filtered.sort((a, b) => a.originalIdx - b.originalIdx);
+            } else {
+                filtered.sort((a, b) => b.total - a.total);
+            }
 
             tableBody.innerHTML = '';
             let grandTotal = 0;
 
-            filtered.forEach((item, i) => {
+            filtered.forEach(item => {
                 grandTotal += item.total;
-                const statusColor = item.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100';
-                
+                const stCls = item.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700';
                 tableBody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition-all border-b border-slate-50">
+                    <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-4 py-4 font-mono text-[10px] font-bold text-slate-400">${item.kode}</td>
                         <td class="px-4 py-4 font-bold text-slate-800 uppercase">${item.nama}</td>
                         <td class="px-4 py-4 text-center">
-                            <span class="px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-wider ${statusColor}">
-                                ${item.status}
-                            </span>
+                            <span class="px-2 py-1 rounded text-[9px] font-black uppercase ${stCls}">${item.status}</span>
                         </td>
                         <td class="px-4 py-4 text-slate-500 uppercase text-[10px] font-bold">${item.kecamatan}</td>
-                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.urea)}</td>
-                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.npk)}</td>
-                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.npkFormula)}</td>
-                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.organik)}</td>
-                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.za)}</td>
-                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.sp36)}</td>
-                        <td class="px-6 py-4 text-right font-black text-slate-100 bg-slate-800/90 text-sm shadow-inner">${formatNum(item.total)}</td>
+                        <td class="px-3 py-4 text-center font-bold text-slate-700">${formatNum(item.urea)}</td>
+                        <td class="px-3 py-4 text-center font-bold text-slate-700">${formatNum(item.npk)}</td>
+                        <td class="px-3 py-4 text-center font-bold text-slate-700">${formatNum(item.npkFormula)}</td>
+                        <td class="px-3 py-4 text-center font-bold text-slate-700">${formatNum(item.organik)}</td>
+                        <td class="px-3 py-4 text-center font-bold text-slate-700">${formatNum(item.za)}</td>
+                        <td class="px-3 py-4 text-center font-bold text-slate-700">${formatNum(item.sp36)}</td>
+                        <td class="px-6 py-4 text-right font-black text-slate-100 bg-slate-800">${formatNum(item.total)}</td>
                     </tr>
                 `;
             });
 
-            document.getElementById('count-info').innerText = `Menampilkan ${filtered.length} Entitas Terdaftar`;
-            document.getElementById('total-info').innerHTML = `${formatNum(grandTotal)} <span class="text-xs font-bold text-slate-400">Kg</span>`;
+            document.getElementById('count-info').innerText = `Menampilkan ${filtered.length} Kios`;
+            document.getElementById('total-info').innerText = `${formatNum(grandTotal)} Kg`;
             
-            const printDate = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
-            document.getElementById('print-info').innerText = `GENERATED ON ${printDate} | STATUS: ${statusFilter || 'SEMUA'} | TOTAL VOL: ${formatNum(grandTotal)} KG`;
+            const now = new Date();
+            document.getElementById('print-info').innerText = `DICETAK: ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')} | TOTAL DATA: ${filtered.length} KIOS`;
         }
 
-        [inputNama, inputStatus, inputKecamatan, inputStok].forEach(el => {
-            el.addEventListener('input', () => {
-                if(el.value !== "") el.classList.add('border-emerald-400', 'bg-emerald-50/30');
-                else el.classList.remove('border-emerald-400', 'bg-emerald-50/30');
-                renderTable();
-            });
+        [inputNama, inputStatus, inputSort].forEach(el => {
+            el.addEventListener('input', renderTable);
         });
     </script>
 </body>
