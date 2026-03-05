@@ -3,221 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Stock PPTS - Dashboard Lengkap</title>
+    <title>Stock Analytics - PPTS Professional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
-        
-        @media print {
-            @page { 
-                size: portrait; 
-                margin: 8mm 5mm; 
-            }
-            .no-print { display: none !important; }
-            body { 
-                background: white !important; 
-                margin: 0 !important; 
-                padding: 0 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            #table-section { 
-                display: block !important; 
-                box-shadow: none !important; 
-                border: none !important; 
-                width: 100% !important;
-                margin: 0 !important;
-            }
-            .scroll-container { 
-                max-height: none !important; 
-                overflow: visible !important; 
-            }
-            table { 
-                width: 100% !important; 
-                border-collapse: collapse !important; 
-                table-layout: fixed !important; 
-            }
-            th, td { 
-                border: 0.5pt solid #cbd5e1 !important; 
-                padding: 4px 2px !important; 
-                font-size: 6pt !important; 
-                word-wrap: break-word !important;
-                overflow: hidden !important;
-            }
-            th { 
-                background-color: #f1f5f9 !important; 
-                font-weight: bold !important;
-            }
-            .bg-emerald-50 { background-color: #f0fdf4 !important; }
-            .bg-slate-800 { background-color: #1e293b !important; color: white !important; }
-            .print-only { display: block !important; }
-            
-            tr { page-break-inside: avoid !important; }
-            thead { display: table-header-group !important; }
+        :root {
+            --primary: #059669;
+            --primary-dark: #064e3b;
+            --accent: #10b981;
         }
 
-        .scroll-container {
-            max-height: 650px;
-            overflow: auto;
-            position: relative;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc;
+            color: #1e293b;
         }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .summary-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0;
+            min-height: 320px;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+            border-color: var(--accent);
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
         thead th {
             position: sticky;
             top: 0;
             z-index: 20;
-            background-color: #f1f5f9;
-            box-shadow: inset 0 -1px 0 #e2e8f0;
+            background: #f1f5f9;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
-        .filter-active {
-            border-color: #10b981 !important;
-            background-color: #f0fdf4 !important;
+
+        .scroll-btn {
+            @apply flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-lg text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all active:scale-95;
         }
-        .summary-card {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .summary-card:hover {
-            transform: translateY(-4px);
-        }
-        .rank-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 14px;
-            transform: rotate(15deg);
-            z-index: 10;
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            #table-section { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            .print-only { display: block !important; }
         }
         .print-only { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
-    <!-- Navigasi -->
-    <nav class="bg-emerald-950 text-white p-4 sticky top-0 z-50 no-print">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-emerald-500 p-1.5 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+<body class="antialiased">
+    <!-- Navigation Bar -->
+    <nav class="glass-panel sticky top-0 z-50 border-b border-slate-200 no-print">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                 </div>
-                <h1 class="text-xl font-bold uppercase tracking-tighter">PPTS <span class="text-emerald-400">Stock</span></h1>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight text-slate-900 leading-none">STOCK ANALYTICS</h1>
+                    <p class="text-[10px] font-semibold text-emerald-600 uppercase tracking-widest mt-1">PPTS Management System</p>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <label for="excel-upload" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer transition-all">UNGGAH EXCEL</label>
+            <div class="flex items-center gap-3">
+                <label for="excel-upload" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Import Data
+                </label>
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls, .csv">
-                <button onclick="window.print()" class="bg-slate-800 hover:bg-black px-4 py-2 rounded-lg text-sm font-bold transition-all">CETAK PDF</button>
+                
+                <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-200 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Export PDF
+                </button>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto p-4 lg:p-6">
+    <main class="container mx-auto px-6 py-8">
         
-        <!-- Ringkasan Card View -->
-        <section id="summary-cards" class="hidden no-print mb-12 space-y-10">
+        <!-- Summary Dashboard -->
+        <section id="summary-cards" class="hidden no-print mb-16 space-y-12">
+            <!-- Top 10 Section -->
             <div>
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-2 h-8 bg-emerald-500 rounded-full"></div>
-                    <h2 class="text-xl font-extrabold text-slate-800 uppercase">Top 5 Stok Tertinggi (Hanya Kios Aktif)</h2>
+                <div class="flex items-end justify-between mb-8 border-l-4 border-emerald-500 pl-4">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-emerald-100 rounded-2xl">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Stock PPTS Tertinggi</h2>
+                            <p class="text-sm text-slate-500 font-medium italic">10 Kios dengan volume stok terbesar saat ini</p>
+                        </div>
+                    </div>
                 </div>
-                <div id="top-20-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div id="top-20-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                     <!-- Cards injected here -->
                 </div>
             </div>
 
+            <!-- Bottom 5 Section -->
             <div>
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-2 h-8 bg-rose-500 rounded-full"></div>
-                    <h2 class="text-xl font-extrabold text-slate-800 uppercase">5 Stok Terendah (Hanya Kios Aktif)</h2>
+                <div class="flex items-end justify-between mb-8 border-l-4 border-rose-500 pl-4">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-rose-100 rounded-2xl">
+                            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-800 tracking-tight text-rose-600">Stok Kritis</h2>
+                            <p class="text-sm text-slate-500 font-medium italic">5 Kios dengan persediaan paling rendah</p>
+                        </div>
+                    </div>
                 </div>
-                <div id="bottom-20-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div id="bottom-20-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                     <!-- Cards injected here -->
                 </div>
             </div>
         </section>
 
-        <!-- Panel Filter -->
-        <section id="filter-panel" class="hidden no-print mb-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex items-center gap-2 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-                <h3 class="font-bold text-slate-800">Filter Pencarian Tabel</h3>
+        <!-- Filter & Table Control -->
+        <div class="hidden no-print mb-8 space-y-6" id="dashboard-controls">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Nama / Kode Kios</label>
+                        <div class="relative">
+                            <input type="text" id="filter-nama" placeholder="Ketik pencarian..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-medium">
+                            <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Kecamatan</label>
+                        <input type="text" id="filter-kecamatan" placeholder="Cari wilayah..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-medium">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Status Kios</label>
+                        <select id="filter-status" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-semibold text-slate-600">
+                            <option value="">Semua Status</option>
+                            <option value="Aktif">Aktif</option>
+                            <option value="Tidak Aktif">Tidak Aktif</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Filter Persediaan</label>
+                        <select id="filter-stok" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm font-semibold text-slate-600">
+                            <option value="all">Tampilkan Semua</option>
+                            <option value="has-stock">Hanya Stok Tersedia (>0)</option>
+                            <option value="no-stock">Hanya Stok Kosong</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <input type="text" id="filter-nama" placeholder="Cari Nama/Kode Kios..." class="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
-                <select id="filter-status" class="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
-                    <option value="">Semua Status</option>
-                    <option value="Aktif">Aktif</option>
-                    <option value="Tidak Aktif">Tidak Aktif</option>
-                </select>
-                <input type="text" id="filter-kecamatan" placeholder="Filter Kecamatan..." class="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
-                <select id="filter-stok" class="w-full p-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
-                    <option value="all">Semua Stok</option>
-                    <option value="has-stock">Hanya Ada Stok (>0)</option>
-                    <option value="no-stock">Stok Kosong</option>
-                </select>
-            </div>
-        </section>
+        </div>
 
-        <!-- Area Tabel -->
-        <section id="table-section" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-            <div class="print-only p-4 text-center border-b">
-                <h1 class="text-lg font-bold uppercase">LAPORAN MONITORING STOK PPTS</h1>
-                <p class="text-[9px] text-slate-500 mb-1">Data Diurutkan Berdasarkan Stok Tertinggi</p>
-                <p id="print-info" class="text-[8px] text-slate-400"></p>
+        <!-- Main Data Table Container -->
+        <section id="table-section" class="hidden bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden relative group/table">
+            
+            <!-- Floating Scroll Navigation -->
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30 no-print opacity-0 group-hover/table:opacity-100 transition-opacity duration-300">
+                <button onclick="scrollTable('up')" class="scroll-btn" title="Gulir ke Atas">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button onclick="scrollTable('down')" class="scroll-btn" title="Gulir ke Bawah">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+            </div>
+
+            <div class="print-only p-8 text-center border-b border-slate-100">
+                <h1 class="text-2xl font-black text-slate-900 uppercase">Laporan Monitoring Stok PPTS</h1>
+                <p id="print-info" class="text-xs text-slate-500 mt-2 font-medium tracking-wide"></p>
             </div>
             
-            <div class="scroll-container custom-scrollbar">
-                <table class="w-full text-[11px] lg:text-xs text-left border-collapse">
+            <div id="table-container" class="scroll-container custom-scrollbar overflow-x-auto max-h-[600px] overflow-y-auto">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-600 uppercase font-bold tracking-tight">
-                            <th class="p-2 border-r text-center w-[25px]">No</th>
-                            <th class="p-2 border-r w-[70px]">Kode</th>
-                            <th class="p-2 border-r min-w-[50px]">Nama Kios</th>
-                            <th class="p-2 border-r text-center w-[30px]">Sts</th>
-                            <th class="p-2 border-r w-[80px]">Kecamatan</th>
-                            <th class="p-2 border-r text-center bg-emerald-50 w-[40px]">Ur</th>
-                            <th class="p-2 border-r text-center bg-emerald-50 w-[40px]">NPK</th>
-                            <th class="p-2 border-r text-center bg-emerald-50 w-[40px]">For</th>
-                            <th class="p-2 border-r text-center bg-emerald-50 w-[40px]">Org</th>
-                            <th class="p-2 border-r text-center bg-emerald-50 w-[40px]">ZA</th>
-                            <th class="p-2 border-r text-center bg-emerald-50 w-[40px]">SP</th>
-                            <th class="p-2 text-right bg-slate-800 text-white w-[40px]">Total</th>
+                        <tr class="bg-slate-50/80 text-slate-500 border-b border-slate-100">
+                            <th class="px-4 py-4 w-28 text-[10px]">ID Kios</th>
+                            <th class="px-4 py-4 text-[10px]">Nama Entitas</th>
+                            <th class="px-4 py-4 text-center w-24 text-[10px]">Status</th>
+                            <th class="px-4 py-4 text-[10px]">Wilayah</th>
+                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">Urea</th>
+                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">NPK</th>
+                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">For</th>
+                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">Org</th>
+                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">ZA</th>
+                            <th class="px-4 py-4 text-center bg-emerald-50/30 w-16 text-[10px]">SP</th>
+                            <th class="px-6 py-4 text-right bg-slate-900 text-slate-300 w-28 text-[10px]">Grand Total</th>
                         </tr>
                     </thead>
-                    <tbody id="table-body" class="divide-y divide-slate-100">
-                        <!-- Data Masuk Disini -->
+                    <tbody id="table-body" class="text-xs font-medium text-slate-600 divide-y divide-slate-100">
+                        <!-- Dynamic Data -->
                     </tbody>
                 </table>
             </div>
-            <div id="footer-summary" class="p-4 bg-slate-50 border-t flex justify-between items-center text-xs font-bold text-slate-600 no-print">
-                <div id="count-info">Menampilkan 0 dari 0 Kios</div>
-                <div id="total-info">Total Kumulatif: 0 Kg</div>
+            
+            <div id="footer-summary" class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 no-print">
+                <div class="flex items-center gap-3">
+                    <span id="count-info" class="bg-white px-4 py-1.5 rounded-full border border-slate-200 text-[11px] font-bold text-slate-700 shadow-sm">
+                        Menampilkan 0 Entitas
+                    </span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="text-right">
+                        <p class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Akumulasi Total Stok</p>
+                        <p id="total-info" class="text-xl font-black text-slate-900">0 <span class="text-xs font-bold text-slate-400">Kg</span></p>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Empty State -->
-        <div id="empty-state" class="mt-20 text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-            <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        <div id="empty-state" class="flex flex-col items-center justify-center py-32 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 transition-all hover:border-emerald-300 group">
+            <div class="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-50 transition-all duration-500">
+                <svg class="w-10 h-10 text-slate-300 group-hover:text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
             </div>
-            <h3 class="text-slate-800 font-bold">Belum Ada Data</h3>
-            <p class="text-slate-400 text-sm mt-1">Silakan unggah file Excel untuk memulai pemantauan.</p>
+            <h3 class="text-xl font-extrabold text-slate-800">Sistem Siap Memproses Data</h3>
+            <p class="text-slate-400 text-sm mt-2 max-w-xs text-center leading-relaxed font-medium">Unggah file Excel stok PPTS Anda untuk mendapatkan visualisasi dashboard profesional.</p>
         </div>
     </main>
 
@@ -225,21 +265,29 @@
         let MASTER_DATA = [];
         const formatNum = (n) => n === 0 ? "0" : new Intl.NumberFormat('id-ID').format(n || 0);
 
-        // DOM Elements
         const excelInput = document.getElementById('excel-upload');
         const tableBody = document.getElementById('table-body');
         const emptyState = document.getElementById('empty-state');
         const tableSection = document.getElementById('table-section');
-        const filterPanel = document.getElementById('filter-panel');
+        const tableContainer = document.getElementById('table-container');
+        const dashboardControls = document.getElementById('dashboard-controls');
         const summaryCards = document.getElementById('summary-cards');
         const top20Container = document.getElementById('top-20-container');
         const bottom20Container = document.getElementById('bottom-20-container');
         
-        // Input Filters
         const inputNama = document.getElementById('filter-nama');
         const inputStatus = document.getElementById('filter-status');
         const inputKecamatan = document.getElementById('filter-kecamatan');
         const inputStok = document.getElementById('filter-stok');
+
+        function scrollTable(direction) {
+            const amount = 300;
+            if (direction === 'up') {
+                tableContainer.scrollBy({ top: -amount, behavior: 'smooth' });
+            } else {
+                tableContainer.scrollBy({ top: amount, behavior: 'smooth' });
+            }
+        }
 
         excelInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -278,8 +326,6 @@
                     kode: row['Kode Kios'] || '-',
                     nama: row['Nama Kios'] || 'N/A',
                     status: row['Status Kios (PSO)'] || row['Status Kios'] || 'N/A',
-                    provinsi: row['Propinsi'] || '-',
-                    kabupaten: row['Kabupaten'] || '-',
                     kecamatan: row['Kecamatan'] || '-',
                     urea, npk, npkFormula, organik, za, sp36, total
                 };
@@ -289,76 +335,83 @@
         function showDashboard() {
             emptyState.classList.add('hidden');
             tableSection.classList.remove('hidden');
-            filterPanel.classList.remove('hidden');
+            dashboardControls.classList.remove('hidden');
             summaryCards.classList.remove('hidden');
             renderSummaryCards();
             renderTable();
         }
 
-        /**
-         * Renders a summary card with breakdown of all 6 fertilizer types
-         * Includes Rank Number and Dynamic Icons
-         */
         function createCard(item, colorClass, rank, isTop) {
+            const badgeColor = isTop ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white';
+            const iconColor = isTop ? 'text-emerald-500' : 'text-rose-500';
+            const iconPath = isTop 
+                ? "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" 
+                : "M13 17h8m0 0V9m0 8l-8-8-4 4-6-6";
+
             const details = [
-                { label: 'Urea', val: item.urea },
-                { label: 'NPK', val: item.npk },
-                { label: 'Form', val: item.npkFormula },
-                { label: 'Org', val: item.organik },
-                { label: 'ZA', val: item.za },
-                { label: 'SP36', val: item.sp36 }
+                { l: 'UREA', v: item.urea },
+                { l: 'NPK', v: item.npk },
+                { l: 'FORM', v: item.npkFormula },
+                { l: 'ORG', v: item.organik },
+                { l: 'ZA', v: item.za },
+                { l: 'SP', v: item.sp36 }
             ];
 
-            const badgeColor = isTop ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white';
-            const iconSvg = isTop 
-                ? `<svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"></path></svg>`
-                : `<svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clip-rule="evenodd"></path></svg>`;
-
-            let rincianHtml = details.map(d => `
-                <div class="bg-slate-50 p-1.5 rounded border border-slate-100 flex flex-col items-center justify-center">
-                    <span class="text-[7px] font-bold text-slate-400 uppercase leading-none mb-1">${d.label}</span>
-                    <span class="text-[10px] font-black text-slate-700 leading-none">${formatNum(d.val)}</span>
-                </div>
-            `).join('');
-
             return `
-                <div class="summary-card bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full">
-                    <div class="rank-badge ${badgeColor}">${rank}</div>
+                <div class="summary-card bg-white p-6 rounded-[2rem] relative overflow-hidden flex flex-col h-full group border-2">
+                    <!-- Badge Rank yang lebih besar dan jelas -->
+                    <div class="rank-badge shadow-xl ${badgeColor}">${rank}</div>
                     
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[10px] font-mono text-slate-400">#${item.kode}</span>
-                        <div class="flex items-center gap-1.5">
-                            ${iconSvg}
-                            <span class="px-2 py-0.5 rounded text-[8px] font-bold bg-emerald-100 text-emerald-700 uppercase">
-                                ${item.status}
-                            </span>
+                    <div class="mb-5">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
+                                <svg class="w-5 h-5 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${iconPath}"/></svg>
+                            </div>
+                            <div class="overflow-hidden">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate">#${item.kode}</p>
+                            </div>
                         </div>
-                    </div>
-                    <h4 class="text-xs font-bold text-slate-800 uppercase line-clamp-1 mb-0.5 pr-4">${item.nama}</h4>
-                    <p class="text-[9px] text-slate-400 uppercase mb-4 border-b border-slate-100 pb-2">${item.kecamatan}</p>
-                    
-                    <div class="grid grid-cols-3 gap-1.5 mb-5 flex-grow">
-                        ${rincianHtml}
+                        <h4 class="text-sm font-black text-slate-800 uppercase leading-tight pr-8 min-h-[2.5rem] flex items-center line-clamp-2">
+                            ${item.nama}
+                        </h4>
                     </div>
 
-                    <div class="mt-auto pt-3 border-t border-slate-100 flex justify-between items-center">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Kumulatif Stok</span>
-                        <span class="text-sm font-black ${colorClass}">${formatNum(item.total)} <span class="text-[10px]">Kg</span></span>
+                    <div class="flex items-center gap-2 mb-6 bg-slate-50 px-3 py-2 rounded-xl">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2.5"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2.5"/></svg>
+                        <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-tight truncate">${item.kecamatan}</span>
+                    </div>
+
+                    <!-- Grid stok dengan font yang lebih tebal dan label yang jelas -->
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        ${details.map(d => `
+                            <div class="bg-white p-2 rounded-xl border border-slate-100 flex flex-col items-center hover:bg-slate-50 transition-colors">
+                                <span class="text-[8px] font-black text-slate-400 leading-none mb-1.5">${d.l}</span>
+                                <span class="text-[11px] font-extrabold text-slate-800">${formatNum(d.v)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Footer total stok dengan kontras tinggi -->
+                    <div class="mt-auto flex justify-between items-center bg-slate-900 -mx-6 -mb-6 p-4 px-6">
+                        <span class="text-[9px] font-black text-slate-400 tracking-widest uppercase">TOTAL STOK</span>
+                        <div class="text-right">
+                            <span class="text-base font-black text-white leading-none">${formatNum(item.total)}</span>
+                            <span class="text-[10px] font-bold text-emerald-400 ml-0.5">Kg</span>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
         function renderSummaryCards() {
-            // Filter hanya kios yang berstatus 'Aktif' untuk ringkasan kartu
             const activeKios = MASTER_DATA.filter(item => item.status === 'Aktif');
-            
             const sortedData = [...activeKios].sort((a, b) => b.total - a.total);
-            const top5 = sortedData.slice(0, 5);
-            top20Container.innerHTML = top5.map((item, index) => createCard(item, 'text-emerald-600', index + 1, true)).join('');
             
-            const bottom5 = [...sortedData].reverse().slice(0, 5);
-            bottom20Container.innerHTML = bottom5.map((item, index) => createCard(item, 'text-rose-600', index + 1, false)).join('');
+            // Top 10 Cards
+            top20Container.innerHTML = sortedData.slice(0, 10).map((item, index) => createCard(item, 'text-emerald-600', index + 1, true)).join('');
+            
+            // Bottom 5 Cards
+            bottom20Container.innerHTML = [...sortedData].reverse().slice(0, 5).map((item, index) => createCard(item, 'text-rose-600', index + 1, false)).join('');
         }
 
         function renderTable() {
@@ -382,41 +435,40 @@
 
             filtered.forEach((item, i) => {
                 grandTotal += item.total;
-                const rowClass = item.status === 'Aktif' ? '' : 'bg-red-50/50';
+                const statusColor = item.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100';
                 
                 tableBody.innerHTML += `
-                    <tr class="${rowClass} hover:bg-slate-50 transition-colors">
-                        <td class="p-1 border-r text-center font-bold text-slate-400">${i + 1}</td>
-                        <td class="p-1 border-r font-mono text-[7.5px]">${item.kode}</td>
-                        <td class="p-1 border-r font-bold text-slate-800 uppercase leading-tight text-[7.5px] truncate max-w-[100px]">${item.nama}</td>
-                        <td class="p-1 border-r text-center">
-                            <span class="px-1 py-0.5 rounded text-[7px] font-bold ${item.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
-                                ${item.status.substring(0, 5)}
+                    <tr class="hover:bg-slate-50/80 transition-all border-b border-slate-50">
+                        <td class="px-4 py-4 font-mono text-[10px] font-bold text-slate-400">${item.kode}</td>
+                        <td class="px-4 py-4 font-bold text-slate-800 uppercase">${item.nama}</td>
+                        <td class="px-4 py-4 text-center">
+                            <span class="px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-wider ${statusColor}">
+                                ${item.status}
                             </span>
                         </td>
-                        <td class="p-1 border-r text-slate-500 uppercase text-[7.5px] truncate max-w-[80px]">${item.kecamatan}</td>
-                        <td class="p-1 border-r text-center font-medium text-[7.5px]">${formatNum(item.urea)}</td>
-                        <td class="p-1 border-r text-center font-medium text-[7.5px]">${formatNum(item.npk)}</td>
-                        <td class="p-1 border-r text-center font-medium text-[7.5px]">${formatNum(item.npkFormula)}</td>
-                        <td class="p-1 border-r text-center font-medium text-[7.5px]">${formatNum(item.organik)}</td>
-                        <td class="p-1 border-r text-center font-medium text-[7.5px]">${formatNum(item.za)}</td>
-                        <td class="p-1 border-r text-center font-medium text-[7.5px]">${formatNum(item.sp36)}</td>
-                        <td class="p-1 text-right font-black text-slate-900 bg-slate-50 text-[8px]">${formatNum(item.total)}</td>
+                        <td class="px-4 py-4 text-slate-500 uppercase text-[10px] font-bold">${item.kecamatan}</td>
+                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.urea)}</td>
+                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.npk)}</td>
+                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.npkFormula)}</td>
+                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.organik)}</td>
+                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.za)}</td>
+                        <td class="px-4 py-4 text-center font-bold text-slate-700 bg-emerald-50/10">${formatNum(item.sp36)}</td>
+                        <td class="px-6 py-4 text-right font-black text-slate-100 bg-slate-800/90 text-sm shadow-inner">${formatNum(item.total)}</td>
                     </tr>
                 `;
             });
 
-            document.getElementById('count-info').innerText = `Menampilkan ${filtered.length} dari ${MASTER_DATA.length} Kios`;
-            document.getElementById('total-info').innerText = `Total Kumulatif: ${formatNum(grandTotal)} Kg`;
+            document.getElementById('count-info').innerText = `Menampilkan ${filtered.length} Entitas Terdaftar`;
+            document.getElementById('total-info').innerHTML = `${formatNum(grandTotal)} <span class="text-xs font-bold text-slate-400">Kg</span>`;
             
             const printDate = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
-            document.getElementById('print-info').innerText = `Dicetak: ${printDate} | Status: ${statusFilter || 'Semua'} | Total: ${formatNum(grandTotal)} Kg`;
+            document.getElementById('print-info').innerText = `GENERATED ON ${printDate} | STATUS: ${statusFilter || 'SEMUA'} | TOTAL VOL: ${formatNum(grandTotal)} KG`;
         }
 
         [inputNama, inputStatus, inputKecamatan, inputStok].forEach(el => {
             el.addEventListener('input', () => {
-                if(el.value !== "") el.classList.add('filter-active');
-                else el.classList.remove('filter-active');
+                if(el.value !== "") el.classList.add('border-emerald-400', 'bg-emerald-50/30');
+                else el.classList.remove('border-emerald-400', 'bg-emerald-50/30');
                 renderTable();
             });
         });
