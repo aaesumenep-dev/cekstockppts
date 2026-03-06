@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Analytics - PPTS Professional</title>
+    <title>Stock PPTS - PPTS Professional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -111,20 +111,20 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-extrabold text-slate-900 leading-none">STOCK ANALYTICS</h1>
+                    <h1 class="text-lg font-extrabold text-slate-900 leading-none">STOCK PPTS</h1>
                     <p class="text-[10px] font-semibold text-emerald-600 uppercase tracking-widest mt-1">PPTS Management System</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <label for="excel-upload" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all flex items-center gap-2">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                    Import Excel
+                    Upload Excel
                 </label>
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls, .csv">
                 
                 <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    Cetak PDF (A4)
+                    Cetak PDF
                 </button>
             </div>
         </div>
@@ -132,23 +132,36 @@
 
     <main class="container mx-auto px-6 py-8">
         
-        <!-- Summary Dashboard (Top & Bottom) - Ditambahkan class no-print -->
+        <!-- Summary Dashboard (Top & Bottom) -->
         <section id="summary-cards" class="hidden mb-16 space-y-12 no-print">
+            <!-- TOP 10 -->
             <div>
                 <div class="flex items-center justify-between mb-8 border-l-4 border-emerald-500 pl-4">
                     <div>
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Top 10 Volume Terbesar</h2>
-                        <p class="text-sm text-slate-500">Kios dengan akumulasi stok tertinggi (Aktif)</p>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">10 PPTS Stock Terbesar</h2>
+                        <p class="text-sm text-slate-500">PPTS dengan akumulasi stok tertinggi</p>
                     </div>
                 </div>
                 <div id="top-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"></div>
             </div>
 
-            <div class="page-break-before">
+            <!-- Stok < 1000 -->
+            <div>
+                <div class="flex items-center justify-between mb-8 border-l-4 border-amber-500 pl-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-amber-600">5 Stock Di Bawah 1.000 Kg</h2>
+                        <p class="text-sm text-slate-500">PPTS dengan persediaan menipis</p>
+                    </div>
+                </div>
+                <div id="warning-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"></div>
+            </div>
+
+            <!-- Stok Terendah -->
+            <div>
                 <div class="flex items-center justify-between mb-8 border-l-4 border-rose-500 pl-4">
                     <div>
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-rose-600">5 Stok Terendah</h2>
-                        <p class="text-sm text-slate-500">Kios dengan persediaan paling kritis (Aktif)</p>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-rose-600">5 PPTS Stok Kosong</h2>
+                        <p class="text-sm text-slate-500">PPTS dengan persediaan paling kritis</p>
                     </div>
                 </div>
                 <div id="bottom-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"></div>
@@ -238,6 +251,7 @@
         const dashboardControls = document.getElementById('dashboard-controls');
         const summaryCards = document.getElementById('summary-cards');
         const topContainer = document.getElementById('top-container');
+        const warningContainer = document.getElementById('warning-container');
         const bottomContainer = document.getElementById('bottom-container');
         
         const inputNama = document.getElementById('filter-nama');
@@ -255,7 +269,6 @@
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                 
-                // Simpan data mentah
                 MASTER_DATA = parseExcelData(jsonData);
                 showDashboard();
             };
@@ -297,8 +310,17 @@
             renderTable();
         }
 
-        function createCard(item, rank, isTop) {
-            const badgeColor = isTop ? 'bg-emerald-600' : 'bg-rose-600';
+        function createCard(item, rank, type) {
+            let badgeColor = 'bg-slate-600';
+            let textColor = 'text-slate-900';
+            
+            if(type === 'top') badgeColor = 'bg-emerald-600';
+            if(type === 'warning') {
+                badgeColor = 'bg-amber-500';
+                textColor = 'text-amber-700';
+            }
+            if(type === 'bottom') badgeColor = 'bg-rose-600';
+
             return `
                 <div class="summary-card bg-white p-6 rounded-[2rem] relative flex flex-col h-full border-2">
                     <div class="rank-badge ${badgeColor} text-white">${rank}</div>
@@ -320,12 +342,12 @@
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-lg text-center">
                             <p class="text-[7px] text-slate-400 font-bold uppercase">Total</p>
-                            <p class="text-[10px] font-black text-emerald-600">${formatNum(item.total)}</p>
+                            <p class="text-[10px] font-black ${type === 'top' ? 'text-emerald-600' : (type === 'warning' ? 'text-amber-600' : 'text-rose-600')}">${formatNum(item.total)}</p>
                         </div>
                     </div>
                     <div class="mt-auto pt-4 border-t flex justify-between items-center">
                          <span class="text-[8px] font-black text-slate-400">GRAND TOTAL</span>
-                         <span class="text-sm font-black text-slate-900">${formatNum(item.total)} Kg</span>
+                         <span class="text-sm font-black ${textColor}">${formatNum(item.total)} Kg</span>
                     </div>
                 </div>
             `;
@@ -333,10 +355,23 @@
 
         function renderSummaryCards() {
             const activeOnly = MASTER_DATA.filter(item => item.status === 'Aktif');
-            const sorted = [...activeOnly].sort((a, b) => b.total - a.total);
+            const sortedDesc = [...activeOnly].sort((a, b) => b.total - a.total);
             
-            topContainer.innerHTML = sorted.slice(0, 10).map((item, i) => createCard(item, i + 1, true)).join('');
-            bottomContainer.innerHTML = [...sorted].reverse().slice(0, 5).map((item, i) => createCard(item, i + 1, false)).join('');
+            // Top 10
+            topContainer.innerHTML = sortedDesc.slice(0, 10).map((item, i) => createCard(item, i + 1, 'top')).join('');
+            
+            // Warning: Di bawah 1000 (diambil dari urutan terkecil tapi yang stoknya < 1000)
+            const under1000 = activeOnly.filter(item => item.total < 1000).sort((a, b) => b.total - a.total);
+            warningContainer.innerHTML = under1000.slice(0, 5).map((item, i) => createCard(item, '!', 'warning')).join('');
+            
+            // Jika tidak ada data < 1000, tampilkan pesan kosong
+            if(under1000.length === 0) {
+                warningContainer.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold text-sm bg-slate-50 rounded-3xl border-2 border-dashed">Semua stok kios di atas 1.000 Kg</div>`;
+            }
+
+            // Bottom 5 (Terendah Mutlak)
+            const sortedAsc = [...activeOnly].sort((a, b) => a.total - b.total);
+            bottomContainer.innerHTML = sortedAsc.slice(0, 5).map((item, i) => createCard(item, i + 1, 'bottom')).join('');
         }
 
         function renderTable() {
@@ -350,7 +385,6 @@
                 return matchNama && matchStatus;
             });
 
-            // Logika Pengurutan
             if (sortMode === 'asc') {
                 filtered.sort((a, b) => a.total - b.total);
             } else if (sortMode === 'original') {
