@@ -3,317 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MONITORING STOCK PPTS</title>
+    <title>Monitoring Stock PPTS | Laporan Profesional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Bricolage+Grotesque:wght@700;800&display=swap');
         
         :root {
-            --primary: #059669;
-            --primary-dark: #064e3b;
-            --accent: #10b981;
+            --brand-primary: #0f172a;
+            --brand-accent: #10b981;
         }
 
         body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc;
-            color: #1e293b;
+            font-family: 'Inter', sans-serif; 
+            background-color: #f1f5f9;
+            color: #334155;
+            letter-spacing: -0.01em;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .heading-font { font-family: 'Bricolage Grotesque', sans-serif; }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        /* Custom Scrollbar untuk tampilan layar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
+
+        .glass-card {
+            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            border-radius: 16px;
         }
 
-        /* --- NOTIFICATION ANIMATION --- */
-        #notification-toast {
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            transform: translateY(100%) translateX(-50%);
-            opacity: 0;
-        }
-
-        #notification-toast.show {
-            transform: translateY(0) translateX(-50%);
-            opacity: 1;
-        }
-
-        /* --- OPTIMASI CETAK (PDF/A4 PORTRAIT) --- */
+        /* Aturan Cetak (PDF) yang Dioptimalkan */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 10mm 8mm; 
+                margin: 10mm 5mm; 
             }
+            
+            body { 
+                background: white !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+
             .no-print { display: none !important; }
-            body { background: white !important; padding: 0; color: black !important; }
-            main { padding: 0 !important; width: 100% !important; margin: 0 !important; max-width: none !important; }
             
-            #table-section { 
-                border: none !important; 
-                box-shadow: none !important; 
-                display: block !important; 
-                border-radius: 0 !important;
-                width: 100% !important;
-            }
-            
+            /* Menghilangkan scrollbar dan menampilkan semua data */
             #table-container { 
                 max-height: none !important; 
                 overflow: visible !important; 
+                display: block !important;
             }
-            
+
+            .glass-card { 
+                box-shadow: none !important; 
+                border: 1px solid #e2e8f0 !important;
+                break-inside: avoid;
+            }
+
             table { 
-                width: 100% !important; 
-                border-collapse: collapse !important; 
-                font-size: 7.5pt !important; 
-                table-layout: auto !important; 
-            }
-            
-            th, td { 
-                border: 0.5pt solid #ccc !important; 
-                padding: 5px 3px !important; 
-                word-wrap: break-word !important;
+                width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: auto !important;
             }
 
-            .col-kode { width: 50px !important; font-size: 7pt !important; }
-            .col-nama { min-width: 180px !important; text-align: left !important; font-weight: bold !important; }
-            .col-status { width: 30px !important; text-align: center !important; }
-            .col-kec { width: 80px !important; }
-            .col-qty { width: 35px !important; text-align: center !important; }
-            .col-total { 
-                width: 55px !important; 
-                text-align: right !important; 
-                background-color: #f1f5f9 !important; 
-                font-weight: 800 !important;
-                -webkit-print-color-adjust: exact;
+            th { 
+                background-color: #f8fafc !important; 
+                color: #0f172a !important; 
+                border-bottom: 2px solid #0f172a !important;
+                font-size: 8pt !important;
             }
 
-            .hidden-print { display: none !important; }
-            .col-aksi { display: none !important; } 
-            
-            thead tr { 
-                background-color: #f1f5f9 !important; 
-                color: #000 !important; 
-                border-bottom: 2pt solid #334155 !important;
-                -webkit-print-color-adjust: exact;
+            td { 
+                font-size: 7pt !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                padding: 4px 2px !important;
             }
-            
+
+            /* Memastikan footer total tetap terlihat di bagian bawah */
+            #table-footer {
+                display: table-footer-group !important;
+            }
+
             .print-only { display: block !important; }
+            
+            h2, .stat-card {
+                break-inside: avoid;
+            }
+
+            /* Optimasi visual untuk cetak hitam putih/warna */
+            .bg-slate-900 { background-color: #0f172a !important; color: white !important; }
+            .text-emerald-600 { color: #059669 !important; }
         }
 
         .print-only { display: none; }
-
-        /* --- CARD VIEW STYLES --- */
-        .summary-card {
-            transition: all 0.3s ease;
-            border: 1px solid #e2e8f0;
-            min-height: 140px;
-            border-radius: 12px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05);
-        }
-
-        .rank-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 2px 8px;
-            font-weight: 800;
-            font-size: 9px;
-            border-radius: 6px;
-            color: white;
-        }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Custom Notification Toast -->
-    <div id="notification-toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] min-w-[320px] max-w-md no-print">
-        <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700/50">
-            <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 animate-pulse">
-                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+    <!-- Toast Notification (Hanya di layar) -->
+    <div id="notification-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] no-print opacity-0 transition-all duration-500 pointer-events-none">
+        <div class="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700">
+            <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
             </div>
-            <div class="flex-1">
-                <p class="text-xs font-black uppercase tracking-widest text-emerald-400">Import Berhasil</p>
-                <p class="text-[11px] font-medium text-slate-300 mt-0.5">HUB AAE SUMENEP JIKA ERROR</p>
+            <div>
+                <p class="text-sm font-bold">Data Terpasang</p>
+                <p class="text-[11px] text-slate-400">Monitoring diperbarui secara otomatis.</p>
             </div>
-            <button onclick="hideNotification()" class="p-1 hover:bg-slate-800 rounded-lg transition-colors">
-                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
         </div>
     </div>
 
-    <!-- Navbar -->
-    <nav class="glass-panel sticky top-0 z-50 no-print">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
+    <!-- Navigation (Hanya di layar) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-emerald-400 shadow-xl shadow-slate-200">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-black text-slate-900 leading-none tracking-tight">STOCK MONITORING</h1>
-                    <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">PPTS SYSTEM</p>
+                    <h1 class="heading-font text-xl text-slate-900 leading-tight tracking-tight">Monitor Stock <span class="text-emerald-500">PPTS</span></h1>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Developer AAE Sumenep</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <label for="excel-upload" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center gap-2 shadow-sm">
-                    <svg class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                    Import Excel
+                <label for="excel-upload" class="group flex items-center gap-2 bg-slate-50 hover:bg-white border border-slate-200 px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm hover:shadow-md">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span class="text-xs font-bold text-slate-700">Import File</span>
                 </label>
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx, .xls">
                 
-                <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    Cetak PDF
+                <button onclick="window.print()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-100 font-bold text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Print Ke PDF
                 </button>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <main class="container mx-auto px-6 py-8">
+    <main class="max-w-7xl mx-auto px-6 py-10">
         
-        <!-- VISUALISASI CARD VIEW (NO PRINT) -->
-        <div id="visual-dashboard" class="hidden no-print space-y-10 mb-12">
-            
-            <!-- Rank Top 5 -->
+        <!-- DASHBOARD VISUAL (Juga tercetak di PDF) -->
+        <div id="visual-dashboard" class="hidden space-y-10 mb-10">
+            <div class="print-only mb-6 text-center">
+                <h1 class="heading-font text-2xl text-slate-900 uppercase">Laporan Monitoring Stock PPTS</h1>
+                <p class="text-[10px] text-slate-500 font-bold">Rekapitulasi Laporan Kondisi Stock Pupuk Penerima Pada Titik Serah</p>
+            </div>
+
+            <!-- Top Stock Section -->
             <section>
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="h-5 w-1.5 bg-emerald-500 rounded-full"></div>
-                    <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Peringkat 5 Stok Terbanyak</h2>
+                <div class="flex items-center gap-3 mb-5 no-print">
+                    <div class="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
+                    <h2 class="heading-font text-lg text-slate-800">Top 5 Stok Tertinggi</h2>
                 </div>
-                <div id="top-rank-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+                <div id="top-highest-container" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
             </section>
 
-            <!-- Grid 2 Kolom: Stok 0 & Stok Rendah -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Stok 0 -->
+            <!-- Grid Stok Masalah -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <section>
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="h-5 w-1.5 bg-rose-500 rounded-full"></div>
-                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Kios Stok Kosong (0 Kg)</h2>
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-8 h-8 bg-rose-100 text-rose-700 rounded-lg flex items-center justify-center no-print">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <h2 class="heading-font text-lg text-slate-800">10 Kios Stok Kosong (0 Kg)</h2>
                     </div>
                     <div id="zero-stock-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </section>
 
-                <!-- Stok Rendah -->
                 <section>
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="h-5 w-1.5 bg-orange-500 rounded-full"></div>
-                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Kios Stok Rendah (< 1.000 Kg)</h2>
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-8 h-8 bg-amber-100 text-amber-700 rounded-lg flex items-center justify-center no-print">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <h2 class="heading-font text-lg text-slate-800">10 Stok Kritis (< 1.000 Kg)</h2>
                     </div>
-                    <div id="low-stock-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    <div id="critical-stock-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </section>
             </div>
         </div>
 
-        <!-- Filters (No Print) -->
+        <!-- SEARCH & FILTERS (Hanya di layar) -->
         <div id="dashboard-controls" class="hidden no-print mb-8">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pencarian</label>
-                    <input type="text" id="filter-nama" placeholder="Nama atau Kode Kios..." class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all">
+            <div class="glass-card p-4 flex flex-wrap items-center gap-4 bg-white/50 backdrop-blur-sm">
+                <div class="flex-1 min-w-[240px] relative">
+                    <svg class="w-4 h-4 absolute left-4 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" id="filter-nama" placeholder="Cari Kode atau Nama Kios..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium">
                 </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wilayah</label>
-                    <select id="filter-kecamatan" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium outline-none"></select>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
-                    <select id="filter-status" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium outline-none">
-                        <option value="">Semua Status</option>
-                        <option value="Aktif">Aktif</option>
-                        <option value="Tidak Aktif">Tidak Aktif</option>
-                    </select>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Urutan</label>
-                    <select id="filter-sort" class="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium outline-none">
-                        <option value="desc">Terbanyak</option>
-                        <option value="asc">Terendah</option>
-                    </select>
-                </div>
+                <select id="filter-kecamatan" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20"></select>
+                <select id="filter-status" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <option value="">Semua Status</option>
+                    <option value="Aktif">Status: Aktif</option>
+                    <option value="Tidak Aktif">Status: Tidak Aktif</option>
+                </select>
+                <select id="filter-sort" class="px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <option value="desc">Urutan: Tertinggi</option>
+                    <option value="asc">Urutan: Terendah</option>
+                </select>
             </div>
         </div>
 
-        <!-- Table View -->
-        <section id="table-section" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-            <div class="print-only p-8 text-center border-b-2 border-slate-100">
-                <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tight">LAPORAN MONITORING STOK PUPUK</h1>
-                <p id="print-info" class="text-[11px] text-slate-500 mt-2 font-bold uppercase tracking-[0.2em]"></p>
+        <!-- TABEL DATA UTAMA -->
+        <section id="table-section" class="hidden glass-card overflow-hidden">
+            <!-- Kop Surat untuk Print PDF -->
+            <div class="print-only p-8 text-center border-b-[3px] border-slate-900 mb-8">
+                <h1 class="heading-font text-2xl text-slate-900 mb-1">LAPORAN REKAPITULASI STOK PUPUK PPTS</h1>
+                <p class="text-sm font-medium text-slate-600 mb-4 tracking-wide">Monitoring Distribusi dan Ketersediaan Stok Kios Resmi</p>
+                <div id="print-info" class="flex justify-center gap-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-t border-slate-100 pt-4"></div>
             </div>
-            
+
             <div id="table-container" class="custom-scrollbar overflow-x-auto max-h-[600px]">
-                <table id="main-table" class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-900 text-slate-300 sticky top-0 z-10">
-                            <th class="px-4 py-4 text-[9px] font-black uppercase col-kode">Kode</th>
-                            <th class="px-4 py-4 text-[9px] font-black uppercase col-nama">Nama Kios</th>
-                            <th class="px-2 py-4 text-[9px] font-black uppercase text-center col-status">Sts</th>
-                            <th class="px-4 py-4 text-[9px] font-black uppercase col-kec">Kecamatan</th>
-                            <th class="px-2 py-4 text-center text-[9px] font-black uppercase border-l border-slate-800 col-qty col-urea">Urea</th>
-                            <th class="px-2 py-4 text-center text-[9px] font-black uppercase col-qty col-npk">NPK</th>
-                            <th class="px-2 py-4 text-center text-[9px] font-black uppercase col-qty col-for">For</th>
-                            <th class="px-2 py-4 text-center text-[9px] font-black uppercase col-qty col-org">Org</th>
-                            <th class="px-2 py-4 text-center text-[9px] font-black uppercase col-qty col-za">ZA</th>
-                            <th class="px-2 py-4 text-center text-[9px] font-black uppercase col-qty col-sp">SP</th>
-                            <th class="px-4 py-4 text-right text-[10px] font-black uppercase bg-emerald-950 text-emerald-400 col-total">Total</th>
-                            <th class="px-4 py-4 text-center text-[9px] font-black uppercase no-print col-aksi">Aksi</th>
+                        <tr class="bg-slate-50 text-slate-500 border-b border-slate-200 sticky top-0 z-20">
+                            <th class="px-5 py-4 text-[10px] font-bold uppercase tracking-wider">Identitas Kios</th>
+                            <th class="px-4 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
+                            <th class="px-4 py-4 text-[10px] font-bold uppercase tracking-wider">Kecamatan</th>
+                            <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">Urea</th>
+                            <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">NPK</th>
+                            <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">Form</th>
+                            <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">Org</th>
+                            <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">ZA</th>
+                            <th class="px-2 py-4 text-center text-[10px] font-bold uppercase tracking-wider">SP</th>
+                            <th class="px-5 py-4 text-right text-[10px] font-extrabold uppercase tracking-wider bg-slate-900 text-white">Grand Total</th>
+                            <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-wider no-print">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="table-body" class="text-[11px] font-bold text-slate-600 divide-y divide-slate-100"></tbody>
+                    <tbody id="table-body" class="text-[11px] font-medium divide-y divide-slate-100 bg-white"></tbody>
+                    <tfoot id="table-footer" class="bg-slate-50 border-t-2 border-slate-200"></tfoot>
                 </table>
             </div>
 
-            <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center no-print">
-                <span id="count-info" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">0 Kios</span>
-                <div class="text-right">
-                    <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Total Stok</p>
-                    <p id="total-info" class="text-2xl font-black text-slate-900">0 Kg</p>
+            <!-- Summary Bawah (Tercetak di PDF) -->
+            <div class="px-8 py-8 bg-slate-50 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-4 no-print">
+                    <div class="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Total Kios Tampil</p>
+                        <p id="count-info" class="text-lg font-black text-slate-900">0 Kios</p>
+                    </div>
+                </div>
+                
+                <div class="text-center md:text-right">
+                    <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Akumulasi Total Seluruh Stok</p>
+                    <p id="total-info" class="text-4xl font-black text-slate-900 tracking-tighter">0 <span class="text-lg font-normal text-slate-400">Kg</span></p>
+                </div>
+            </div>
+
+            <!-- Tanda Tangan Khusus Print -->
+            <div class="print-only mt-12 grid grid-cols-2 gap-10 px-10">
+                <div class="text-center">
+                    <p class="text-[10px] font-bold mb-16 uppercase">Dicetak Pada,</p>
+                    <div class="border-t border-slate-900 w-40 mx-auto pt-1">
+                        <p class="text-[10px] font-black uppercase" id="print-date-label"></p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Empty State -->
-        <div id="empty-state" class="flex flex-col items-center justify-center py-40 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 no-print">
-            <div class="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mb-8 shadow-inner">
-                <svg class="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <!-- EMPTY STATE (Hanya di layar) -->
+        <div id="empty-state" class="flex flex-col items-center justify-center py-40 no-print">
+            <div class="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-xl border border-slate-100">
+                <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <h3 class="text-xl font-black text-slate-800">Import Data Excel</h3>
-            <p class="text-slate-400 text-sm mt-2 font-medium">Klik tombol import untuk mengaktifkan monitoring.</p>
+            <h3 class="heading-font text-2xl text-slate-800 mb-2">Database Belum Terisi</h3>
+            <p class="text-slate-400 font-medium text-sm">Silahkan unggah file laporan stok harian (.xlsx) untuk memproses data.</p>
         </div>
     </main>
 
     <script>
         let MASTER_DATA = [];
-        const formatNum = (n) => n === 0 ? "0" : new Intl.NumberFormat('id-ID').format(n || 0);
-
-        function showNotification() {
-            const toast = document.getElementById('notification-toast');
-            toast.classList.add('show');
-            // Auto hide after 8 seconds
-            setTimeout(hideNotification, 8000);
-        }
-
-        function hideNotification() {
-            const toast = document.getElementById('notification-toast');
-            toast.classList.remove('show');
-        }
+        const formatNum = (n) => n === 0 ? "0" : new Intl.NumberFormat('id-ID').format(Math.round(n) || 0);
 
         document.getElementById('excel-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -349,27 +312,25 @@
                     };
                 });
 
-                populateKecamatan();
-                showDashboard();
-                showNotification(); // TRIGGER NOTIFIKASI
+                const filterKec = document.getElementById('filter-kecamatan');
+                filterKec.innerHTML = '<option value="">Semua Kecamatan</option>';
+                [...new Set(MASTER_DATA.map(i => i.kecamatan))].sort().forEach(k => {
+                    if(k && k !== '-') filterKec.innerHTML += `<option value="${k}">${k}</option>`;
+                });
+
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('table-section').classList.remove('hidden');
+                document.getElementById('dashboard-controls').classList.remove('hidden');
+                document.getElementById('visual-dashboard').classList.remove('hidden');
+                
+                renderTable();
+                
+                const toast = document.getElementById('notification-toast');
+                toast.classList.replace('opacity-0', 'opacity-100');
+                setTimeout(() => toast.classList.replace('opacity-100', 'opacity-0'), 3000);
             };
             reader.readAsArrayBuffer(file);
         });
-
-        function populateKecamatan() {
-            const list = [...new Set(MASTER_DATA.map(i => i.kecamatan))].sort();
-            const filter = document.getElementById('filter-kecamatan');
-            filter.innerHTML = '<option value="">Semua Kecamatan</option>';
-            list.forEach(k => { if(k && k !== '-') filter.innerHTML += `<option value="${k}">${k}</option>`; });
-        }
-
-        function showDashboard() {
-            document.getElementById('empty-state').classList.add('hidden');
-            document.getElementById('table-section').classList.remove('hidden');
-            document.getElementById('dashboard-controls').classList.remove('hidden');
-            document.getElementById('visual-dashboard').classList.remove('hidden');
-            renderTable();
-        }
 
         function renderTable() {
             const searchTerm = document.getElementById('filter-nama').value.toLowerCase();
@@ -386,106 +347,113 @@
 
             filtered.sort((a, b) => sortMode === 'asc' ? a.total - b.total : b.total - a.total);
 
-            // Clean Columns Logic
-            const hasData = {
-                urea: filtered.some(i => i.urea > 0),
-                npk: filtered.some(i => i.npk > 0),
-                for: filtered.some(i => i.npkFormula > 0),
-                org: filtered.some(i => i.organik > 0),
-                za: filtered.some(i => i.za > 0),
-                sp: filtered.some(i => i.sp36 > 0)
-            };
-
-            const toggleCol = (selector, exists) => {
-                const els = document.querySelectorAll(selector);
-                els.forEach(el => exists ? el.classList.remove('hidden-print') : el.classList.add('hidden-print'));
-            };
-
-            toggleCol('.col-urea', hasData.urea);
-            toggleCol('.col-npk', hasData.npk);
-            toggleCol('.col-for', hasData.for);
-            toggleCol('.col-org', hasData.org);
-            toggleCol('.col-za', hasData.za);
-            toggleCol('.col-sp', hasData.sp);
-
             const tbody = document.getElementById('table-body');
+            const tfoot = document.getElementById('table-footer');
             tbody.innerHTML = '';
-            let grandTotal = 0;
+            
+            let sums = { urea: 0, npk: 0, for: 0, org: 0, za: 0, sp: 0, grand: 0 };
 
             filtered.forEach(item => {
-                grandTotal += item.total;
-                const stsClass = item.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+                sums.urea += item.urea;
+                sums.npk += item.npk;
+                sums.for += item.npkFormula;
+                sums.org += item.organik;
+                sums.za += item.za;
+                sums.sp += item.sp36;
+                sums.grand += item.total;
+
+                const isAktif = item.status === 'Aktif';
+                const stsClass = isAktif ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500';
                 
                 tbody.innerHTML += `
-                    <tr>
-                        <td class="px-4 py-3.5 font-mono text-[9px] text-slate-400 col-kode">${item.kode}</td>
-                        <td class="px-4 py-3.5 font-extrabold text-slate-800 uppercase col-nama leading-tight">${item.nama}</td>
-                        <td class="px-2 py-3.5 text-center col-status">
-                            <span class="px-1.5 py-0.5 rounded text-[8px] font-black ${stsClass}">${item.status.substring(0, 1)}</span>
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex flex-col">
+                                <span class="text-[8px] font-black text-slate-400 font-mono mb-0.5">${item.kode}</span>
+                                <span class="font-bold text-slate-900 uppercase">${item.nama}</span>
+                            </div>
                         </td>
-                        <td class="px-4 py-3.5 text-slate-500 uppercase text-[9px] font-bold col-kec">${item.kecamatan}</td>
-                        <td class="px-1 py-3.5 text-center text-slate-600 border-l border-slate-50 col-qty col-urea ${!hasData.urea ? 'hidden-print' : ''}">${formatNum(item.urea)}</td>
-                        <td class="px-1 py-3.5 text-center text-slate-600 col-qty col-npk ${!hasData.npk ? 'hidden-print' : ''}">${formatNum(item.npk)}</td>
-                        <td class="px-1 py-3.5 text-center text-slate-600 col-qty col-for ${!hasData.for ? 'hidden-print' : ''}">${formatNum(item.npkFormula)}</td>
-                        <td class="px-1 py-3.5 text-center text-slate-600 col-qty col-org ${!hasData.org ? 'hidden-print' : ''}">${formatNum(item.organik)}</td>
-                        <td class="px-1 py-3.5 text-center text-slate-600 col-qty col-za ${!hasData.za ? 'hidden-print' : ''}">${formatNum(item.za)}</td>
-                        <td class="px-1 py-3.5 text-center text-slate-600 col-qty col-sp ${!hasData.sp ? 'hidden-print' : ''}">${formatNum(item.sp36)}</td>
-                        <td class="px-4 py-3.5 text-right font-black text-slate-900 bg-slate-50/50 col-total">${formatNum(item.total)}</td>
-                        <td class="px-4 py-3.5 text-center no-print col-aksi">
-                            <button onclick="deleteRow('${item.id}')" class="text-slate-300 hover:text-rose-600 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2"/></svg>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${stsClass}">${item.status}</span>
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-slate-500 uppercase">${item.kecamatan}</td>
+                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.urea)}</td>
+                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.npk)}</td>
+                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.npkFormula)}</td>
+                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.organik)}</td>
+                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.za)}</td>
+                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.sp36)}</td>
+                        <td class="px-5 py-3 text-right font-black text-slate-900 bg-slate-50/80">${formatNum(item.total)}</td>
+                        <td class="px-5 py-3 text-center no-print">
+                            <button onclick="deleteRow('${item.id}')" class="p-1.5 text-slate-300 hover:text-rose-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </td>
                     </tr>
                 `;
             });
 
+            tfoot.innerHTML = `
+                <tr class="font-black text-slate-900 bg-slate-50">
+                    <td colspan="3" class="px-5 py-4 text-right text-[10px] uppercase tracking-widest text-slate-400">Total Akumulasi Halaman Ini</td>
+                    <td class="px-2 py-4 text-center text-xs border-l border-slate-100">${formatNum(sums.urea)}</td>
+                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.npk)}</td>
+                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.for)}</td>
+                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.org)}</td>
+                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.za)}</td>
+                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.sp)}</td>
+                    <td class="px-5 py-4 text-right text-base text-white bg-slate-900">${formatNum(sums.grand)}</td>
+                    <td class="no-print"></td>
+                </tr>
+            `;
+
             document.getElementById('count-info').innerText = `${filtered.length} Kios`;
-            document.getElementById('total-info').innerText = `${formatNum(grandTotal)} Kg`;
+            document.getElementById('total-info').innerText = formatNum(sums.grand);
             
-            const now = new Date().toLocaleString('id-ID');
-            document.getElementById('print-info').innerText = `DICETAK PADA: ${now} | TOTAL KIOS: ${filtered.length}`;
-            updateVisualCards(filtered);
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+            document.getElementById('print-info').innerHTML = `
+                <span>Tanggal Laporan: ${dateStr}</span>
+                <span>•</span>
+                <span>Total Data: ${filtered.length} Kios</span>
+                <span>•</span>
+                <span>Status Filter: ${stsFilter || 'Semua'}</span>
+            `;
+            document.getElementById('print-date-label').innerText = dateStr;
+            
+            updateVisuals(MASTER_DATA);
         }
 
-        function updateVisualCards(data) {
-            const activeOnly = data.filter(i => i.status === 'Aktif');
-            const top5 = [...activeOnly].sort((a,b) => b.total - a.total).slice(0, 5);
-            renderCards('top-rank-container', top5, 'bg-emerald-600', true);
-
-            const zeroStock = data.filter(i => i.total === 0).slice(0, 10);
-            renderCards('zero-stock-container', zeroStock, 'bg-rose-500', false);
-
-            const lowStock = data.filter(i => i.total > 0 && i.total < 1000).sort((a,b) => a.total - b.total).slice(0, 10);
-            renderCards('low-stock-container', lowStock, 'bg-orange-500', false);
-        }
-
-        function renderCards(containerId, list, badgeColor, isRank) {
-            const container = document.getElementById(containerId);
-            if (list.length === 0) {
-                container.innerHTML = `<div class="col-span-full py-8 text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest border border-dashed border-slate-200 rounded-xl">Tidak ada data</div>`;
-                return;
-            }
-
-            container.innerHTML = list.map((item, idx) => `
-                <div class="summary-card p-4 shadow-sm border border-slate-100">
-                    <div class="rank-badge ${badgeColor}">${isRank ? '#'+(idx+1) : (item.total === 0 ? 'KOSONG' : 'RENDAH')}</div>
-                    <div class="pr-12">
-                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">${item.kode}</p>
-                        <h4 class="text-[10px] font-black text-slate-800 uppercase line-clamp-2 leading-tight">${item.nama}</h4>
+        function createStatCard(item, accentColor, badgeText) {
+            return `
+                <div class="glass-card p-4 border-l-4" style="border-left-color: ${accentColor === 'emerald' ? '#10b981' : accentColor === 'rose' ? '#f43f5e' : '#f59e0b'}">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[8px] font-bold text-slate-400 font-mono uppercase">${item.kode}</span>
+                        <span class="text-[7px] px-1.5 py-0.5 bg-${accentColor}-50 text-${accentColor}-700 border border-${accentColor}-100 rounded font-black uppercase tracking-tighter">${badgeText}</span>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-end">
-                        <div class="flex flex-col">
-                            <span class="text-[7px] font-black text-slate-300 uppercase">Kecamatan</span>
-                            <span class="text-[9px] font-bold text-slate-500 truncate max-w-[90px]">${item.kecamatan}</span>
-                        </div>
+                    <h4 class="text-[10px] font-black text-slate-800 uppercase mb-3 line-clamp-1">${item.nama}</h4>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase truncate">${item.kecamatan}</span>
                         <div class="text-right">
-                            <span class="text-[7px] font-black text-slate-300 uppercase">Stok</span>
-                            <p class="text-sm font-black ${item.total === 0 ? 'text-rose-600' : 'text-slate-900'}">${formatNum(item.total)} <small class="text-[8px]">Kg</small></p>
+                            <span class="text-sm font-black text-slate-900 tracking-tighter">${formatNum(item.total)}</span>
+                            <span class="text-[8px] font-bold text-slate-400 ml-0.5">Kg</span>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+        }
+
+        function updateVisuals(data) {
+            const top5 = [...data].sort((a,b) => b.total - a.total).slice(0, 5);
+            document.getElementById('top-highest-container').innerHTML = top5.map((item, idx) => 
+                createStatCard(item, 'emerald', `Rank #${idx+1}`)
+            ).join('');
+
+            const zero = data.filter(i => i.total === 0).slice(0, 10);
+            document.getElementById('zero-stock-container').innerHTML = zero.length ? zero.map(i => createStatCard(i, 'rose', 'Habis')).join('') : '<p class="col-span-full text-center text-xs py-4 text-slate-400 italic">Tidak ada stok kosong</p>';
+
+            const crit = data.filter(i => i.total > 0 && i.total < 1000).sort((a,b) => a.total - b.total).slice(0, 10);
+            document.getElementById('critical-stock-container').innerHTML = crit.length ? crit.map(i => createStatCard(i, 'amber', 'Kritis')).join('') : '<p class="col-span-full text-center text-xs py-4 text-slate-400 italic">Stok aman</p>';
         }
 
         function deleteRow(id) {
