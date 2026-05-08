@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoring Stock PPTS | Laporan Profesional</title>
+    <title>Monitoring Stock PPTS | Detail Jenis Pupuk</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -23,7 +23,6 @@
 
         .heading-font { font-family: 'Bricolage Grotesque', sans-serif; }
 
-        /* Custom Scrollbar untuk tampilan layar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
@@ -35,75 +34,21 @@
             border-radius: 16px;
         }
 
-        /* Aturan Cetak (PDF) yang Dioptimalkan */
         @media print {
-            @page { 
-                size: A4 portrait; 
-                margin: 10mm 5mm; 
-            }
-            
-            body { 
-                background: white !important; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
-
+            @page { size: A4 portrait; margin: 10mm 5mm; }
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
-            
-            /* Menghilangkan scrollbar dan menampilkan semua data */
-            #table-container { 
-                max-height: none !important; 
-                overflow: visible !important; 
-                display: block !important;
-            }
-
-            .glass-card { 
-                box-shadow: none !important; 
-                border: 1px solid #e2e8f0 !important;
-                break-inside: avoid;
-            }
-
-            table { 
-                width: 100% !important;
-                border-collapse: collapse !important;
-                table-layout: auto !important;
-            }
-
-            th { 
-                background-color: #f8fafc !important; 
-                color: #0f172a !important; 
-                border-bottom: 2px solid #0f172a !important;
-                font-size: 8pt !important;
-            }
-
-            td { 
-                font-size: 7pt !important;
-                border-bottom: 1px solid #f1f5f9 !important;
-                padding: 4px 2px !important;
-            }
-
-            /* Memastikan footer total tetap terlihat di bagian bawah */
-            #table-footer {
-                display: table-footer-group !important;
-            }
-
-            .print-only { display: block !important; }
-            
-            h2, .stat-card {
-                break-inside: avoid;
-            }
-
-            /* Optimasi visual untuk cetak hitam putih/warna */
-            .bg-slate-900 { background-color: #0f172a !important; color: white !important; }
-            .text-emerald-600 { color: #059669 !important; }
+            #table-container { max-height: none !important; overflow: visible !important; display: block !important; }
+            .glass-card { box-shadow: none !important; border: 1px solid #e2e8f0 !important; break-inside: avoid; }
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th { font-size: 8pt !important; background-color: #f8fafc !important; color: #0f172a !important; border-bottom: 2px solid #0f172a !important; }
+            td { font-size: 7pt !important; padding: 4px 2px !important; }
         }
-
-        .print-only { display: none; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Toast Notification (Hanya di layar) -->
+    <!-- Toast Notification -->
     <div id="notification-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] no-print opacity-0 transition-all duration-500 pointer-events-none">
         <div class="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-700">
             <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
@@ -111,12 +56,12 @@
             </div>
             <div>
                 <p class="text-sm font-bold">Data Terpasang</p>
-                <p class="text-[11px] text-slate-400">Monitoring diperbarui secara otomatis.</p>
+                <p class="text-[11px] text-slate-400">Data telah disaring secara otomatis.</p>
             </div>
         </div>
     </div>
 
-    <!-- Navigation (Hanya di layar) -->
+    <!-- Navigation -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 no-print">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -145,14 +90,7 @@
 
     <main class="max-w-7xl mx-auto px-6 py-10">
         
-        <!-- DASHBOARD VISUAL (Juga tercetak di PDF) -->
         <div id="visual-dashboard" class="hidden space-y-10 mb-10">
-            <div class="print-only mb-6 text-center">
-                <h1 class="heading-font text-2xl text-slate-900 uppercase">Laporan Monitoring Stock PPTS</h1>
-                <p class="text-[10px] text-slate-500 font-bold">Rekapitulasi Laporan Kondisi Stock Pupuk Penerima Pada Titik Serah</p>
-            </div>
-
-            <!-- Top Stock Section -->
             <section>
                 <div class="flex items-center gap-3 mb-5 no-print">
                     <div class="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center">
@@ -160,10 +98,9 @@
                     </div>
                     <h2 class="heading-font text-lg text-slate-800">Top 5 Stok Tertinggi</h2>
                 </div>
-                <div id="top-highest-container" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                <div id="top-highest-container" class="grid grid-cols-1 md:grid-cols-5 gap-4"></div>
             </section>
 
-            <!-- Grid Stok Masalah -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <section>
                     <div class="flex items-center gap-3 mb-5">
@@ -187,7 +124,6 @@
             </div>
         </div>
 
-        <!-- SEARCH & FILTERS (Hanya di layar) -->
         <div id="dashboard-controls" class="hidden no-print mb-8">
             <div class="glass-card p-4 flex flex-wrap items-center gap-4 bg-white/50 backdrop-blur-sm">
                 <div class="flex-1 min-w-[240px] relative">
@@ -207,15 +143,7 @@
             </div>
         </div>
 
-        <!-- TABEL DATA UTAMA -->
         <section id="table-section" class="hidden glass-card overflow-hidden">
-            <!-- Kop Surat untuk Print PDF -->
-            <div class="print-only p-8 text-center border-b-[3px] border-slate-900 mb-8">
-                <h1 class="heading-font text-2xl text-slate-900 mb-1">LAPORAN REKAPITULASI STOK PUPUK PPTS</h1>
-                <p class="text-sm font-medium text-slate-600 mb-4 tracking-wide">Monitoring Distribusi dan Ketersediaan Stok Kios Resmi</p>
-                <div id="print-info" class="flex justify-center gap-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-t border-slate-100 pt-4"></div>
-            </div>
-
             <div id="table-container" class="custom-scrollbar overflow-x-auto max-h-[600px]">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -238,7 +166,6 @@
                 </table>
             </div>
 
-            <!-- Summary Bawah (Tercetak di PDF) -->
             <div class="px-8 py-8 bg-slate-50 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div class="flex items-center gap-4 no-print">
                     <div class="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
@@ -252,19 +179,8 @@
                     <p id="total-info" class="text-4xl font-black text-slate-900 tracking-tighter">0 <span class="text-lg font-normal text-slate-400">Kg</span></p>
                 </div>
             </div>
-
-            <!-- Tanda Tangan Khusus Print -->
-            <div class="print-only mt-12 grid grid-cols-2 gap-10 px-10">
-                <div class="text-center">
-                    <p class="text-[10px] font-bold mb-16 uppercase">Dicetak Pada,</p>
-                    <div class="border-t border-slate-900 w-40 mx-auto pt-1">
-                        <p class="text-[10px] font-black uppercase" id="print-date-label"></p>
-                    </div>
-                </div>
-            </div>
         </section>
 
-        <!-- EMPTY STATE (Hanya di layar) -->
         <div id="empty-state" class="flex flex-col items-center justify-center py-40 no-print">
             <div class="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-xl border border-slate-100">
                 <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -276,7 +192,28 @@
 
     <script>
         let MASTER_DATA = [];
+        
+        const BLACKLIST_KEYWORDS = [
+            "RT0000030101", "RT0000030110", "RT0000032681", "RT0000032795",
+            "RT0000032796", "RT0000032798", "RT0000032803", "RT0000032806",
+            "RT0000032807", "RT0000032808", "RT0000032811", "RT0000032815",
+            "RT0000032818", "RT0000033333", "RT0000033335", "RT0000033337",
+            "RT0000033344", "RT0000035132", "RT0000035138", "RT0000035144",
+            "RT0000035162", "RT0000035170", "RT0000035181", "RT0000035184",
+            "RT0000035186", "RT0000035187", "RT0000035188", "RT0000040220",
+            "RT0000040258", "RT0000040306", "RT0000043909", "RT0000061326",
+            "RT0000064723", "RT0000086645", "RT0000087450", "RT0000087451",
+            "RT0000087472", "RT0000087503"
+        ];
+
         const formatNum = (n) => n === 0 ? "0" : new Intl.NumberFormat('id-ID').format(Math.round(n) || 0);
+
+        function sanitizeData(dataArray) {
+            return dataArray.filter(item => {
+                const searchStr = `${item.nama} ${item.kecamatan} ${item.kode}`.toLowerCase();
+                return !BLACKLIST_KEYWORDS.some(kw => searchStr.includes(kw.toLowerCase()));
+            });
+        }
 
         document.getElementById('excel-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -288,7 +225,7 @@
                 const workbook = XLSX.read(data, { type: 'array' });
                 const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                 
-                MASTER_DATA = jsonData.map((row) => {
+                const rawData = jsonData.map((row) => {
                     const getVal = (keys) => {
                         const found = Object.keys(row).find(k => keys.some(key => k.toLowerCase().includes(key.toLowerCase())));
                         return found ? parseFloat(row[found]) || 0 : 0;
@@ -300,17 +237,19 @@
                     const organik = getVal(['Organik Granul (Kg)']);
                     const za = getVal(['Amonium Sulfat ZA(Kg)']);
                     const sp36 = getVal(['Pupuk Super Fosfat SP-36(Kg)']);
-                    const total = urea + npk + npkFormula + organik + za + sp36;
 
                     return {
                         id: Math.random().toString(36).substr(2, 9),
-                        kode: (row['Kode Kios'] || '-').toString(),
-                        nama: (row['Nama Kios'] || 'N/A').toString(),
+                        kode: (row['Kode Kios'] || row['Kode'] || '-').toString().trim(),
+                        nama: (row['Nama Kios'] || row['Nama'] || 'N/A').toString().trim(),
                         status: (row['Status Kios (PSO)'] || row['Status Kios'] || 'Aktif').trim(),
-                        kecamatan: (row['Kecamatan'] || '-').toString(),
-                        urea, npk, npkFormula, organik, za, sp36, total
+                        kecamatan: (row['Kecamatan'] || '-').toString().trim(),
+                        urea, npk, npkFormula, organik, za, sp36,
+                        total: urea + npk + npkFormula + organik + za + sp36
                     };
                 });
+
+                MASTER_DATA = sanitizeData(rawData);
 
                 const filterKec = document.getElementById('filter-kecamatan');
                 filterKec.innerHTML = '<option value="">Semua Kecamatan</option>';
@@ -348,23 +287,15 @@
             filtered.sort((a, b) => sortMode === 'asc' ? a.total - b.total : b.total - a.total);
 
             const tbody = document.getElementById('table-body');
-            const tfoot = document.getElementById('table-footer');
             tbody.innerHTML = '';
             
             let sums = { urea: 0, npk: 0, for: 0, org: 0, za: 0, sp: 0, grand: 0 };
 
             filtered.forEach(item => {
-                sums.urea += item.urea;
-                sums.npk += item.npk;
-                sums.for += item.npkFormula;
-                sums.org += item.organik;
-                sums.za += item.za;
-                sums.sp += item.sp36;
+                sums.urea += item.urea; sums.npk += item.npk; sums.for += item.npkFormula;
+                sums.org += item.organik; sums.za += item.za; sums.sp += item.sp36;
                 sums.grand += item.total;
 
-                const isAktif = item.status === 'Aktif';
-                const stsClass = isAktif ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500';
-                
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-5 py-3">
@@ -374,18 +305,18 @@
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${stsClass}">${item.status}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${item.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${item.status}</span>
                         </td>
                         <td class="px-4 py-3 font-semibold text-slate-500 uppercase">${item.kecamatan}</td>
-                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.urea)}</td>
-                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.npk)}</td>
-                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.npkFormula)}</td>
-                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.organik)}</td>
-                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.za)}</td>
-                        <td class="px-2 py-3 text-center font-semibold">${formatNum(item.sp36)}</td>
+                        <td class="px-2 py-3 text-center">${formatNum(item.urea)}</td>
+                        <td class="px-2 py-3 text-center">${formatNum(item.npk)}</td>
+                        <td class="px-2 py-3 text-center">${formatNum(item.npkFormula)}</td>
+                        <td class="px-2 py-3 text-center">${formatNum(item.organik)}</td>
+                        <td class="px-2 py-3 text-center">${formatNum(item.za)}</td>
+                        <td class="px-2 py-3 text-center">${formatNum(item.sp36)}</td>
                         <td class="px-5 py-3 text-right font-black text-slate-900 bg-slate-50/80">${formatNum(item.total)}</td>
                         <td class="px-5 py-3 text-center no-print">
-                            <button onclick="deleteRow('${item.id}')" class="p-1.5 text-slate-300 hover:text-rose-600 transition-colors">
+                            <button onclick="deleteRow('${item.id}')" class="p-1.5 text-slate-300 hover:text-rose-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </td>
@@ -393,15 +324,15 @@
                 `;
             });
 
-            tfoot.innerHTML = `
+            document.getElementById('table-footer').innerHTML = `
                 <tr class="font-black text-slate-900 bg-slate-50">
-                    <td colspan="3" class="px-5 py-4 text-right text-[10px] uppercase tracking-widest text-slate-400">Total Akumulasi Halaman Ini</td>
-                    <td class="px-2 py-4 text-center text-xs border-l border-slate-100">${formatNum(sums.urea)}</td>
-                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.npk)}</td>
-                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.for)}</td>
-                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.org)}</td>
-                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.za)}</td>
-                    <td class="px-2 py-4 text-center text-xs">${formatNum(sums.sp)}</td>
+                    <td colspan="3" class="px-5 py-4 text-right text-[10px] uppercase text-slate-400">Total Akumulasi</td>
+                    <td class="px-2 py-4 text-center">${formatNum(sums.urea)}</td>
+                    <td class="px-2 py-4 text-center">${formatNum(sums.npk)}</td>
+                    <td class="px-2 py-4 text-center">${formatNum(sums.for)}</td>
+                    <td class="px-2 py-4 text-center">${formatNum(sums.org)}</td>
+                    <td class="px-2 py-4 text-center">${formatNum(sums.za)}</td>
+                    <td class="px-2 py-4 text-center">${formatNum(sums.sp)}</td>
                     <td class="px-5 py-4 text-right text-base text-white bg-slate-900">${formatNum(sums.grand)}</td>
                     <td class="no-print"></td>
                 </tr>
@@ -409,32 +340,60 @@
 
             document.getElementById('count-info').innerText = `${filtered.length} Kios`;
             document.getElementById('total-info').innerText = formatNum(sums.grand);
-            
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-            document.getElementById('print-info').innerHTML = `
-                <span>Tanggal Laporan: ${dateStr}</span>
-                <span>•</span>
-                <span>Total Data: ${filtered.length} Kios</span>
-                <span>•</span>
-                <span>Status Filter: ${stsFilter || 'Semua'}</span>
-            `;
-            document.getElementById('print-date-label').innerText = dateStr;
-            
-            updateVisuals(MASTER_DATA);
+            updateVisuals(filtered);
         }
 
-        function createStatCard(item, accentColor, badgeText) {
+        function createStatCard(item, accentColor) {
+            const colors = {
+                emerald: { border: '#10b981' },
+                rose: { border: '#f43f5e' },
+                amber: { border: '#f59e0b' }
+            };
+            const c = colors[accentColor];
+
             return `
-                <div class="glass-card p-4 border-l-4" style="border-left-color: ${accentColor === 'emerald' ? '#10b981' : accentColor === 'rose' ? '#f43f5e' : '#f59e0b'}">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[8px] font-bold text-slate-400 font-mono uppercase">${item.kode}</span>
-                        <span class="text-[7px] px-1.5 py-0.5 bg-${accentColor}-50 text-${accentColor}-700 border border-${accentColor}-100 rounded font-black uppercase tracking-tighter">${badgeText}</span>
+                <div class="glass-card p-4 border-l-4 overflow-hidden relative" style="border-left-color: ${c.border}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="text-[8px] font-black text-slate-400 font-mono uppercase tracking-tighter">${item.kode}</span>
+                                <span class="text-[7px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded uppercase tracking-tighter">${item.kecamatan}</span>
+                            </div>
+                            <h4 class="text-[11px] font-black text-slate-800 uppercase line-clamp-1">${item.nama}</h4>
+                        </div>
                     </div>
-                    <h4 class="text-[10px] font-black text-slate-800 uppercase mb-3 line-clamp-1">${item.nama}</h4>
-                    <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase truncate">${item.kecamatan}</span>
+
+                    <!-- Grid Detail Jenis Pupuk -->
+                    <div class="grid grid-cols-3 gap-1.5 mb-4 border-y border-slate-50 py-2">
+                        <div class="text-center bg-slate-50/50 rounded p-1">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">Urea</p>
+                            <p class="text-[10px] font-black text-slate-700">${formatNum(item.urea)}</p>
+                        </div>
+                        <div class="text-center bg-slate-50/50 rounded p-1">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">NPK</p>
+                            <p class="text-[10px] font-black text-slate-700">${formatNum(item.npk)}</p>
+                        </div>
+                        <div class="text-center bg-slate-50/50 rounded p-1">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">Form</p>
+                            <p class="text-[10px] font-black text-slate-700">${formatNum(item.npkFormula)}</p>
+                        </div>
+                        <div class="text-center bg-slate-50/50 rounded p-1">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">Org</p>
+                            <p class="text-[10px] font-black text-slate-700">${formatNum(item.organik)}</p>
+                        </div>
+                        <div class="text-center bg-slate-50/50 rounded p-1">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">ZA</p>
+                            <p class="text-[10px] font-black text-slate-700">${formatNum(item.za)}</p>
+                        </div>
+                        <div class="text-center bg-slate-50/50 rounded p-1">
+                            <p class="text-[7px] text-slate-400 font-bold uppercase">SP</p>
+                            <p class="text-[10px] font-black text-slate-700">${formatNum(item.sp36)}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
                         <div class="text-right">
+                            <span class="text-[8px] font-bold text-slate-400 mr-1 uppercase italic">Total</span>
                             <span class="text-sm font-black text-slate-900 tracking-tighter">${formatNum(item.total)}</span>
                             <span class="text-[8px] font-bold text-slate-400 ml-0.5">Kg</span>
                         </div>
@@ -445,21 +404,18 @@
 
         function updateVisuals(data) {
             const top5 = [...data].sort((a,b) => b.total - a.total).slice(0, 5);
-            document.getElementById('top-highest-container').innerHTML = top5.map((item, idx) => 
-                createStatCard(item, 'emerald', `Rank #${idx+1}`)
+            document.getElementById('top-highest-container').innerHTML = top5.map((item) => 
+                createStatCard(item, 'emerald')
             ).join('');
 
             const zero = data.filter(i => i.total === 0).slice(0, 10);
-            document.getElementById('zero-stock-container').innerHTML = zero.length ? zero.map(i => createStatCard(i, 'rose', 'Habis')).join('') : '<p class="col-span-full text-center text-xs py-4 text-slate-400 italic">Tidak ada stok kosong</p>';
+            document.getElementById('zero-stock-container').innerHTML = zero.length ? zero.map(i => createStatCard(i, 'rose')).join('') : '<p class="col-span-full text-center text-xs py-4 text-slate-400 italic">Tidak ada stok kosong</p>';
 
             const crit = data.filter(i => i.total > 0 && i.total < 1000).sort((a,b) => a.total - b.total).slice(0, 10);
-            document.getElementById('critical-stock-container').innerHTML = crit.length ? crit.map(i => createStatCard(i, 'amber', 'Kritis')).join('') : '<p class="col-span-full text-center text-xs py-4 text-slate-400 italic">Stok aman</p>';
+            document.getElementById('critical-stock-container').innerHTML = crit.length ? crit.map(i => createStatCard(i, 'amber')).join('') : '<p class="col-span-full text-center text-xs py-4 text-slate-400 italic">Stok aman</p>';
         }
 
-        function deleteRow(id) {
-            MASTER_DATA = MASTER_DATA.filter(i => i.id !== id);
-            renderTable();
-        }
+        function deleteRow(id) { MASTER_DATA = MASTER_DATA.filter(i => i.id !== id); renderTable(); }
 
         ['filter-nama', 'filter-kecamatan', 'filter-status', 'filter-sort'].forEach(id => {
             document.getElementById(id).addEventListener('input', renderTable);
